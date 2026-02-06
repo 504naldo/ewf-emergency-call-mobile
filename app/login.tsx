@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Alert, Image } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useState } from "react";
 import { router } from "expo-router";
 import { useAuth } from "@/lib/auth-context";
@@ -9,6 +10,7 @@ const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3
 
 export default function LoginScreen() {
   const colors = useColors();
+  const colorScheme = useColorScheme();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -55,7 +57,11 @@ export default function LoginScreen() {
         {/* Logo/Title */}
         <View className="items-center gap-4">
           <Image
-            source={{ uri: "https://files.manuscdn.com/user_upload_by_module/session_file/113852657/nPOljwohFWrZoKjw.png" }}
+            source={{ 
+              uri: colorScheme === "dark" 
+                ? "https://files.manuscdn.com/user_upload_by_module/session_file/113852657/njoEbWIGAcCvLOcK.png"
+                : "https://files.manuscdn.com/user_upload_by_module/session_file/113852657/nPOljwohFWrZoKjw.png"
+            }}
             style={{ width: 280, height: 100 }}
             resizeMode="contain"
           />

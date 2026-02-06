@@ -177,3 +177,8 @@
 - [x] Set max width to ~170px with auto height
 - [x] Maintain proper spacing to avoid pushing login fields too low
 - [x] Replace with correct EWF "earth wind and fire" logo
+
+## Dark Mode Logo Support
+- [x] Generate light version of EWF logo for dark mode
+- [x] Upload light logo to CDN
+- [x] Implement automatic logo switching based on color scheme in login screen
