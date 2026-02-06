@@ -146,3 +146,10 @@
 - [x] Gate tRPC queries until authReady=true
 - [x] Add debug info in Settings (authStatus, tokenPresent, currentUser)
 - [x] Fix logout to clear token and reset tRPC cache
+
+## Login Issue Debug
+- [x] Test login API endpoint directly with curl
+- [x] Check if JWT token is being generated correctly
+- [x] Fix AuthGuard to properly redirect when no token exists
+- [x] Add loading state to prevent Home screen rendering before auth check
+- [x] Ensure tRPC queries don't run until auth is confirmed
