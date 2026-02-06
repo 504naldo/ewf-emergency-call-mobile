@@ -10,10 +10,18 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch current user
-  const { data: currentUser, refetch: refetchUser } = trpc.users.getMe.useQuery();
+  const { data: currentUser, error: userError, refetch: refetchUser } = trpc.users.getMe.useQuery();
 
   // Fetch user's incidents
-  const { data: incidents = [], refetch: refetchIncidents } = trpc.incidents.getMyIncidents.useQuery();
+  const { data: incidents = [], error: incidentsError, refetch: refetchIncidents } = trpc.incidents.getMyIncidents.useQuery();
+
+  // Log errors to console and screen
+  if (userError) {
+    console.error("[Home] Error fetching user:", userError);
+  }
+  if (incidentsError) {
+    console.error("[Home] Error fetching incidents:", incidentsError);
+  }
 
   // Update availability mutation
   const updateAvailability = trpc.users.updateAvailability.useMutation({
@@ -73,6 +81,19 @@ export default function HomeScreen() {
               />
             </View>
           </View>
+
+          {/* Error Display */}
+          {(userError || incidentsError) && (
+            <View className="bg-error/10 border border-error rounded-2xl p-4">
+              <Text className="text-error font-semibold mb-2">⚠️ Error Loading Data</Text>
+              {userError && (
+                <Text className="text-error text-sm mb-1">User: {userError.message}</Text>
+              )}
+              {incidentsError && (
+                <Text className="text-error text-sm">Incidents: {incidentsError.message}</Text>
+              )}
+            </View>
+          )}
 
           {/* Active Incidents */}
           <View className="gap-4">

@@ -100,3 +100,9 @@
 
 ## New Features
 - [x] Add DEV-ONLY GET endpoint at /api/webhooks/telephony/test for browser testing
+
+## Bug Fixes
+- [x] Ensure admin + mobile use correct backend URL (https://3000-...)
+- [x] Fix tRPC incidents.list to return all incidents without filters
+- [x] Add GET /api/debug/incidents endpoint for verification
+- [x] Add error logging to UI for tRPC/fetch errors

@@ -7,7 +7,7 @@ import {
   handleAnsweredUnclaimed,
   startRouting,
 } from "./routing-engine";
-import { matchSiteByPhone } from "./db";
+import { matchSiteByPhone, getDb } from "./db";
 
 const router = Router();
 
@@ -227,5 +227,46 @@ if (process.env.NODE_ENV !== "production") {
     await handleTestCall(res);
   });
 }
+
+// ============================================================================
+// Debug Endpoint
+// ============================================================================
+
+/**
+ * Debug endpoint to view recent incidents
+ * Usage: GET /api/debug/incidents
+ */
+router.get("/debug/incidents", async (req, res) => {
+  try {
+    const db = await getDb();
+    if (!db) {
+      return res.status(500).json({ error: "Database not available" });
+    }
+
+    const result: any = await db.execute(
+      "SELECT id, externalId, bhAh, callerId, siteId, status, assignedUserId, createdAt, updatedAt FROM incidents ORDER BY createdAt DESC LIMIT 20"
+    );
+
+    const incidents = result[0] || [];
+
+    res.json({
+      count: incidents.length,
+      incidents: incidents.map((inc: any) => ({
+        id: inc.id,
+        externalId: inc.externalId,
+        bhAh: inc.bhAh,
+        callerId: inc.callerId,
+        siteId: inc.siteId,
+        status: inc.status,
+        assignedUserId: inc.assignedUserId,
+        createdAt: inc.createdAt,
+        updatedAt: inc.updatedAt,
+      })),
+    });
+  } catch (error: any) {
+    console.error("[Debug] Error fetching incidents:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 export default router;

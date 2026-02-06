@@ -10,16 +10,22 @@ export default function AdminBoardScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch current user
-  const { data: currentUser } = trpc.users.getMe.useQuery();
+  const { data: currentUser, error: userError } = trpc.users.getMe.useQuery();
 
   // Fetch all open incidents
-  const { data: openIncidents = [], refetch: refetchOpen } = trpc.incidents.getAllOpen.useQuery();
+  const { data: openIncidents = [], error: openError, refetch: refetchOpen } = trpc.incidents.getAllOpen.useQuery();
 
   // Fetch unclaimed incidents
-  const { data: unclaimedIncidents = [], refetch: refetchUnclaimed } = trpc.incidents.getUnclaimed.useQuery();
+  const { data: unclaimedIncidents = [], error: unclaimedError, refetch: refetchUnclaimed } = trpc.incidents.getUnclaimed.useQuery();
 
   // Fetch all techs
-  const { data: techs = [], refetch: refetchTechs } = trpc.users.getAllTechs.useQuery();
+  const { data: techs = [], error: techsError, refetch: refetchTechs } = trpc.users.getAllTechs.useQuery();
+
+  // Log errors to console
+  if (userError) console.error("[Admin] Error fetching user:", userError);
+  if (openError) console.error("[Admin] Error fetching open incidents:", openError);
+  if (unclaimedError) console.error("[Admin] Error fetching unclaimed incidents:", unclaimedError);
+  if (techsError) console.error("[Admin] Error fetching techs:", techsError);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -67,6 +73,17 @@ export default function AdminBoardScreen() {
             <Text className="text-3xl font-bold text-foreground">Admin Board</Text>
             <Text className="text-base text-muted">Real-time incident monitoring</Text>
           </View>
+
+          {/* Error Display */}
+          {(userError || openError || unclaimedError || techsError) && (
+            <View className="bg-error/10 border border-error rounded-2xl p-4">
+              <Text className="text-error font-semibold mb-2">⚠️ Error Loading Data</Text>
+              {userError && <Text className="text-error text-sm mb-1">User: {userError.message}</Text>}
+              {openError && <Text className="text-error text-sm mb-1">Open Incidents: {openError.message}</Text>}
+              {unclaimedError && <Text className="text-error text-sm mb-1">Unclaimed: {unclaimedError.message}</Text>}
+              {techsError && <Text className="text-error text-sm">Techs: {techsError.message}</Text>}
+            </View>
+          )}
 
           {/* Stats */}
           <View className="flex-row gap-3">
