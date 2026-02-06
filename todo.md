@@ -165,3 +165,9 @@
 - [x] Ensure Authorization header is attached to all tRPC calls
 - [x] Update tRPC context to validate JWT tokens from Authorization header
 - [ ] Test that authenticated endpoints work after login
+
+## Automatic Logout on 401
+- [x] Update AuthContext to clear token and logout when users.me returns 401
+- [x] Add token validation on app load that calls users.getMe
+- [x] Automatically logout and show login screen when 401 detected
+- [ ] Test token expiration and invalid token scenarios
