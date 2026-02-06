@@ -1,11 +1,14 @@
-import { ScrollView, Text, View, TouchableOpacity, Switch, TextInput } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, Switch, TextInput, Alert } from "react-native";
 import { useState } from "react";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
 import { useColors } from "@/hooks/use-colors";
+import { useAuth } from "@/hooks/use-auth";
+import { router } from "expo-router";
 
 export default function SettingsScreen() {
   const colors = useColors();
+  const { logout } = useAuth();
 
   // Fetch current user
   const { data: currentUser } = trpc.users.getMe.useQuery();
@@ -234,6 +237,33 @@ export default function SettingsScreen() {
                 ))}
               </View>
             )}
+          </View>
+
+          {/* Logout Section */}
+          <View className="gap-4">
+            <Text className="text-xl font-bold text-foreground">Account</Text>
+            <TouchableOpacity
+              onPress={() => {
+                Alert.alert(
+                  "Logout",
+                  "Are you sure you want to logout?",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Logout",
+                      style: "destructive",
+                      onPress: async () => {
+                        await logout();
+                        router.replace("/login");
+                      },
+                    },
+                  ],
+                );
+              }}
+              className="bg-error/10 border border-error rounded-2xl p-6"
+            >
+              <Text className="text-error font-semibold text-center text-lg">Logout</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>

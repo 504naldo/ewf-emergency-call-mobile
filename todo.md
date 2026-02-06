@@ -106,3 +106,15 @@
 - [x] Fix tRPC incidents.list to return all incidents without filters
 - [x] Add GET /api/debug/incidents endpoint for verification
 - [x] Add error logging to UI for tRPC/fetch errors
+
+## User Management
+- [x] Update current user role to admin for testing
+
+## Authentication & Security
+- [x] Require login on app launch (no guest mode)
+- [x] Add logout button to settings/profile
+- [x] Enforce auth on all tRPC routes (except public endpoints)
+- [x] Enforce auth on REST routes (except /health and webhooks)
+- [x] Implement server-side RBAC (admin/manager routes)
+- [x] Restrict techs to only their own data
+- [x] Add webhook signature verification

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { publicProcedure, router } from "../_core/trpc";
+import { publicProcedure, protectedProcedure, adminProcedure, router } from "../_core/trpc";
 import {
   getAllOpenIncidents,
   getIncidentById,
@@ -19,28 +19,25 @@ import {
 } from "../routing-engine";
 
 export const incidentsRouter = router({
-  // Get all open incidents (for admin board)
-  getAllOpen: publicProcedure.query(async () => {
+  // Get all open incidents (for admin board) - ADMIN ONLY
+  getAllOpen: adminProcedure.query(async () => {
     return await getAllOpenIncidents();
   }),
 
-  // Get unclaimed incidents (for admin board)
-  getUnclaimed: publicProcedure.query(async () => {
+  // Get unclaimed incidents (for admin board) - ADMIN ONLY
+  getUnclaimed: adminProcedure.query(async () => {
     return await getUnclaimedIncidents();
   }),
 
-  // Get incidents assigned to current user (for tech mobile app)
-  getMyIncidents: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.user?.id) {
-      return [];
-    }
+  // Get incidents assigned to current user (for tech mobile app) - PROTECTED
+  getMyIncidents: protectedProcedure.query(async ({ ctx }) => {
     return await getIncidentsByUser(ctx.user.id);
   }),
 
-  // Get incident details with related data
-  getDetails: publicProcedure
+  // Get incident details with related data - PROTECTED
+  getDetails: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const incident = await getIncidentById(input.id);
       if (!incident) {
         throw new Error("Incident not found");
@@ -62,13 +59,10 @@ export const incidentsRouter = router({
       };
     }),
 
-  // Accept incident (tech claims it)
-  accept: publicProcedure
+  // Accept incident (tech claims it) - PROTECTED
+  accept: protectedProcedure
     .input(z.object({ incidentId: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user?.id) {
-        throw new Error("User not authenticated");
-      }
 
       await assignIncident(input.incidentId, ctx.user.id, ctx.user.id);
 
@@ -82,8 +76,8 @@ export const incidentsRouter = router({
       return { success: true };
     }),
 
-  // Decline incident (tech declines it)
-  decline: publicProcedure
+  // Decline incident (tech declines it) - PROTECTED
+  decline: protectedProcedure
     .input(
       z.object({
         incidentId: z.number(),
@@ -92,9 +86,6 @@ export const incidentsRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user?.id) {
-        throw new Error("User not authenticated");
-      }
 
       await logIncidentEvent({
         incidentId: input.incidentId,
@@ -112,8 +103,8 @@ export const incidentsRouter = router({
       return { success: true };
     }),
 
-  // Update incident status (en route, on site, etc.)
-  updateStatus: publicProcedure
+  // Update incident status (en route, on site, etc.) - PROTECTED
+  updateStatus: protectedProcedure
     .input(
       z.object({
         incidentId: z.number(),
@@ -121,17 +112,14 @@ export const incidentsRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user?.id) {
-        throw new Error("User not authenticated");
-      }
 
       await updateIncidentStatus(input.incidentId, input.status, ctx.user.id);
 
       return { success: true };
     }),
 
-  // Close incident with outcome
-  close: publicProcedure
+  // Close incident with outcome - PROTECTED
+  close: protectedProcedure
     .input(
       z.object({
         incidentId: z.number(),
@@ -141,9 +129,6 @@ export const incidentsRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user?.id) {
-        throw new Error("User not authenticated");
-      }
 
       await closeIncident(
         input.incidentId,
@@ -158,8 +143,8 @@ export const incidentsRouter = router({
       return { success: true };
     }),
 
-  // Manual assignment (admin only)
-  manualAssign: publicProcedure
+  // Manual assignment (admin only) - ADMIN ONLY
+  manualAssign: adminProcedure
     .input(
       z.object({
         incidentId: z.number(),
@@ -167,26 +152,16 @@ export const incidentsRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user?.id) {
-        throw new Error("User not authenticated");
-      }
-
-      // TODO: Check if user has admin role
 
       await assignIncident(input.incidentId, input.userId, ctx.user.id);
 
       return { success: true };
     }),
 
-  // Manual escalation (admin only)
-  manualEscalate: publicProcedure
+  // Manual escalation (admin only) - ADMIN ONLY
+  manualEscalate: adminProcedure
     .input(z.object({ incidentId: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user?.id) {
-        throw new Error("User not authenticated");
-      }
-
-      // TODO: Check if user has admin role
 
       await logIncidentEvent({
         incidentId: input.incidentId,

@@ -1,15 +1,15 @@
 import { z } from "zod";
-import { publicProcedure, router } from "../_core/trpc";
+import { publicProcedure, protectedProcedure, adminProcedure, router } from "../_core/trpc";
 import { getSystemConfig, setSystemConfig } from "../db";
 
 export const configRouter = router({
-  // Get business hours configuration
-  getBusinessHours: publicProcedure.query(async () => {
+  // Get business hours configuration - PROTECTED (all users can view)
+  getBusinessHours: protectedProcedure.query(async () => {
     return await getSystemConfig("business_hours");
   }),
 
-  // Update business hours configuration
-  updateBusinessHours: publicProcedure
+  // Update business hours configuration - ADMIN ONLY
+  updateBusinessHours: adminProcedure
     .input(
       z.object({
         days: z.array(z.number().min(0).max(6)),
@@ -21,31 +21,20 @@ export const configRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user?.id) {
-        throw new Error("User not authenticated");
-      }
-
-      // TODO: Check if user has admin role
-
       await setSystemConfig("business_hours", input);
 
       return { success: true };
     }),
 
-  // Get ring duration
-  getRingDuration: publicProcedure.query(async () => {
+  // Get ring duration - PROTECTED (all users can view)
+  getRingDuration: protectedProcedure.query(async () => {
     return await getSystemConfig("ring_duration");
   }),
 
-  // Update ring duration
-  updateRingDuration: publicProcedure
+  // Update ring duration - ADMIN ONLY
+  updateRingDuration: adminProcedure
     .input(z.object({ seconds: z.number().min(10).max(60) }))
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user?.id) {
-        throw new Error("User not authenticated");
-      }
-
-      // TODO: Check if user has admin role
 
       await setSystemConfig("ring_duration", input);
 

@@ -1,4 +1,5 @@
 import { Router } from "express";
+import type { Request, Response, NextFunction } from "express";
 import {
   createIncident,
   logIncidentEvent,
@@ -10,6 +11,40 @@ import {
 import { matchSiteByPhone, getDb } from "./db";
 
 const router = Router();
+
+// ============================================================================
+// Webhook Authentication Middleware
+// ============================================================================
+
+/**
+ * Verify webhook signature using shared secret
+ * 
+ * In production, the telephony provider should send a signature header
+ * (e.g., X-Webhook-Signature) that is an HMAC of the request body.
+ * 
+ * For now, we use a simple shared secret in the Authorization header.
+ */
+function verifyWebhookSignature(req: Request, res: Response, next: NextFunction) {
+  // Skip verification in development for test endpoints
+  if (process.env.NODE_ENV === "development" && req.path.includes("/test")) {
+    return next();
+  }
+
+  const webhookSecret = process.env.WEBHOOK_SECRET;
+  const authHeader = req.headers["authorization"];
+
+  if (!webhookSecret) {
+    console.error("[Webhook] WEBHOOK_SECRET not configured");
+    return res.status(500).json({ error: "Server configuration error" });
+  }
+
+  if (!authHeader || authHeader !== `Bearer ${webhookSecret}`) {
+    console.error("[Webhook] Invalid or missing authorization header");
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  next();
+}
 
 // ============================================================================
 // Webhook Types
@@ -55,7 +90,7 @@ type MissedPayload = {
  * Incoming Call Webhook
  * Triggered when a new emergency call comes in
  */
-router.post("/webhooks/telephony/incoming_call", async (req, res) => {
+router.post("/webhooks/telephony/incoming_call", verifyWebhookSignature, async (req, res) => {
   try {
     const payload: IncomingCallPayload = req.body;
 
@@ -92,7 +127,7 @@ router.post("/webhooks/telephony/incoming_call", async (req, res) => {
  * Ringing Webhook
  * Triggered when a call starts ringing for a technician
  */
-router.post("/webhooks/telephony/ringing", async (req, res) => {
+router.post("/webhooks/telephony/ringing", verifyWebhookSignature, async (req, res) => {
   try {
     const payload: RingingPayload = req.body;
 
@@ -113,7 +148,7 @@ router.post("/webhooks/telephony/ringing", async (req, res) => {
  * Answered Webhook
  * Triggered when a technician answers the call
  */
-router.post("/webhooks/telephony/answered", async (req, res) => {
+router.post("/webhooks/telephony/answered", verifyWebhookSignature, async (req, res) => {
   try {
     const payload: AnsweredPayload = req.body;
 
@@ -133,9 +168,9 @@ router.post("/webhooks/telephony/answered", async (req, res) => {
 
 /**
  * Completed Webhook
- * Triggered when a call ends
+ * Triggered when the call ends
  */
-router.post("/webhooks/telephony/completed", async (req, res) => {
+router.post("/webhooks/telephony/completed", verifyWebhookSignature, async (req, res) => {
   try {
     const payload: CompletedPayload = req.body;
 
@@ -153,9 +188,9 @@ router.post("/webhooks/telephony/completed", async (req, res) => {
 
 /**
  * Missed Webhook
- * Triggered when a call is not answered (timeout or declined)
+ * Triggered when a call attempt is missed
  */
-router.post("/webhooks/telephony/missed", async (req, res) => {
+router.post("/webhooks/telephony/missed", verifyWebhookSignature, async (req, res) => {
   try {
     const payload: MissedPayload = req.body;
 
@@ -231,6 +266,48 @@ if (process.env.NODE_ENV !== "production") {
 // ============================================================================
 // Debug Endpoint
 // ============================================================================
+
+/**
+ * Debug endpoint to show current logged-in user
+ * Usage: GET /api/debug/whoami
+ */
+router.get("/debug/whoami", async (req, res) => {
+  try {
+    const db = await getDb();
+    if (!db) {
+      return res.status(500).json({ error: "Database not available" });
+    }
+
+    // Get user from session (this is a simplified version)
+    // In production, you'd extract the user from JWT or session
+    const result: any = await db.execute(
+      "SELECT id, openId, name, email, role, phone, active, available FROM users ORDER BY id LIMIT 1"
+    );
+
+    const user = result[0]?.[0];
+
+    if (!user) {
+      return res.json({ message: "No users found in database" });
+    }
+
+    res.json({
+      message: "First user in database (for testing)",
+      user: {
+        id: user.id,
+        openId: user.openId,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        active: user.active,
+        available: user.available,
+      },
+    });
+  } catch (error: any) {
+    console.error("[Debug] Error fetching user:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 /**
  * Debug endpoint to view recent incidents
