@@ -186,17 +186,17 @@ export async function resolveUserForStep(
       const result: any = await db
         .select({ id: users.id })
         .from(users)
-        .where(and(eq(users.role, "manager"), eq(users.active, true)))
-        .limit(1);
-      return result.length > 0 ? [result[0].id] : [];
+        .where(
+          and(
+            eq(users.role, "manager"),
+            eq(users.active, true)
+          )
+        );
+      return result.map((r: any) => r.id);
     }
 
-    case "rotating_pool": {
-      return await getNextRotatingUsers(attemptedUserIds);
-    }
-
-    case "broadcast": {
-      // Return all admins and managers for broadcast
+    case "broadcast":
+    case "admin": {
       const result: any = await db
         .select({ id: users.id })
         .from(users)
@@ -207,6 +207,10 @@ export async function resolveUserForStep(
           )
         );
       return result.map((r: any) => r.id);
+    }
+    
+    case "rotating_pool": {
+      return await getNextRotatingUsers(attemptedUserIds);
     }
 
     default:

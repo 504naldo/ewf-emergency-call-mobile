@@ -191,3 +191,18 @@
 - [x] Remove automatic token validation that was causing 401 errors
 - [x] Fix JWT token field name mismatch (id vs userId) in tRPC context
 - [x] Test complete login flow end-to-end
+
+## Twilio Studio Flow Integration
+- [x] Create POST /api/telephony/next-target endpoint
+- [x] Create POST /api/telephony/answered endpoint
+- [x] Create POST /api/telephony/completed endpoint
+- [x] Create POST /api/telephony/attempt-failed endpoint
+- [x] Implement BH ladder routing (primary->secondary->admin->manager)
+- [x] Implement AH ladder routing (primary->secondary->manager->admin->rotating_pool)
+- [x] Exclude unavailable users from routing
+- [x] Exclude already-rung users from routing
+- [x] Persist call_attempts for each routing step
+- [x] Add Twilio signature verification for webhook security
+- [x] Add shared secret header fallback for webhook security
+- [x] Create Twilio Studio Flow plan document
+- [x] Test all webhook endpoints

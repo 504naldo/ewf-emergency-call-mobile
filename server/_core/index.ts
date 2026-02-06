@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import webhookRoutes from "../webhooks";
 import authRoutes from "../auth";
+import twilioWebhookRoutes from "../twilio-webhooks";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -63,6 +64,9 @@ async function startServer() {
 
   // Register webhook routes
   app.use("/api", webhookRoutes);
+  
+  // Register Twilio webhook routes
+  app.use("/api", twilioWebhookRoutes);
 
   app.get("/api/health", (_req, res) => {
     res.json({ ok: true, timestamp: Date.now() });
