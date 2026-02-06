@@ -1,7 +1,9 @@
 import { Router } from "express";
 import type { Request, Response } from "express";
-import { sign, verify } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import mysql from "mysql2/promise";
+
+const { sign, verify } = jwt;
 
 const router = Router();
 

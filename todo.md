@@ -126,3 +126,6 @@
 - [x] Fetch current user on app load after login
 - [x] Show user name + role in Settings tab
 - [x] Update logout to clear token and redirect to login
+
+## Build Fixes
+- [x] Fix jsonwebtoken ESM/CommonJS import error in server/auth.ts
