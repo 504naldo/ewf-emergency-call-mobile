@@ -2,12 +2,16 @@ import { Router } from "express";
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import mysql from "mysql2/promise";
+import bcrypt from "bcrypt";
 
 const { sign, verify } = jwt;
 
 const router = Router();
 
-const JWT_SECRET = process.env.JWT_SECRET || "ewf-emergency-secret-2026";
+const JWT_SECRET = process.env.JWT_SECRET!;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required");
+}
 const JWT_EXPIRES_IN = "7d";
 
 /**
@@ -28,9 +32,9 @@ router.post("/auth/login", async (req: Request, res: Response) => {
     // Connect to database
     const conn = await mysql.createConnection(process.env.DATABASE_URL!);
 
-    // Find user by email
+    // Find user by email (include password hash)
     const [rows]: any = await conn.execute(
-      "SELECT id, openId, name, email, role, phone, active, available FROM users WHERE email = ?",
+      "SELECT id, openId, name, email, role, phone, active, available, password FROM users WHERE email = ?",
       [email]
     );
     
@@ -42,9 +46,16 @@ router.post("/auth/login", async (req: Request, res: Response) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    // For demo purposes, we're not checking password
-    // In production, you would verify password hash here
-    // For now, any password works if email exists
+    // Verify password
+    if (user.password) {
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: "Invalid email or password" });
+      }
+    } else {
+      // No password set - reject login
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
 
     // Generate JWT token
     const token = sign(

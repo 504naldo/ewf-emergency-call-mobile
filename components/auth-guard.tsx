@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { useRouter, useSegments } from "expo-router";
 import { useColors } from "@/hooks/use-colors";
-import { getAuthToken, fetchCurrentUser } from "@/lib/auth-helpers";
+import { getAuthToken } from "@/lib/auth-helpers";
 
 /**
  * Auth Guard Component
@@ -25,14 +25,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const checkAuth = async () => {
     try {
       const token = await getAuthToken();
-      
-      if (token) {
-        // Verify token is still valid
-        const user = await fetchCurrentUser();
-        setIsAuthenticated(!!user);
-      } else {
-        setIsAuthenticated(false);
-      }
+      setIsAuthenticated(!!token);
     } catch (error) {
       console.error("[AuthGuard] Error checking auth:", error);
       setIsAuthenticated(false);

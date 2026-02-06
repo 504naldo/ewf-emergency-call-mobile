@@ -129,3 +129,12 @@
 
 ## Build Fixes
 - [x] Fix jsonwebtoken ESM/CommonJS import error in server/auth.ts
+
+## Authentication Flow Fixes
+- [x] Update tRPC client to attach JWT token to all requests
+- [x] Fix app launch auth check (load token -> route accordingly)
+- [x] Add visible error display on login failure (Alert.alert)
+- [x] Add real password hashing and validation (bcrypt)
+- [x] Seed test users with real hashed passwords
+- [x] Set JWT_SECRET environment variable (built-in)
+- [x] Create users.me tRPC procedure for token validation (getMe)
