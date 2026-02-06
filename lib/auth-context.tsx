@@ -38,13 +38,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadAuth();
   }, []);
 
-  // Validate token with backend after loading
-  useEffect(() => {
-    if (token && user && !isLoading) {
-      validateToken();
-    }
-  }, [token, user, isLoading]);
-
   const loadAuth = async () => {
     try {
       console.log("[AuthContext] Loading auth state...");
@@ -81,28 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const validateToken = async () => {
-    try {
-      console.log("[AuthContext] Validating token with backend...");
-      const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000";
-      
-      const response = await fetch(`${API_BASE_URL}/api/trpc/users.getMe`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
 
-      if (response.status === 401) {
-        console.warn("[AuthContext] Token validation failed (401), logging out...");
-        await logout();
-      } else if (response.ok) {
-        console.log("[AuthContext] Token validation successful");
-      }
-    } catch (error) {
-      console.error("[AuthContext] Error validating token:", error);
-    }
-  };
 
   const login = async (newToken: string, newUser: User) => {
     try {

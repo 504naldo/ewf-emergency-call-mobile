@@ -182,3 +182,12 @@
 - [x] Generate light version of EWF logo for dark mode
 - [x] Upload light logo to CDN
 - [x] Implement automatic logo switching based on color scheme in login screen
+
+## Login Redirect Issue
+- [x] Debug why users are redirected back to login screen after signing in
+- [x] Check AuthContext token validation logic
+- [x] Check AuthGuard rendering logic
+- [x] Verify token is being stored correctly
+- [x] Remove automatic token validation that was causing 401 errors
+- [x] Fix JWT token field name mismatch (id vs userId) in tRPC context
+- [x] Test complete login flow end-to-end

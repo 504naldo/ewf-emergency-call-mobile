@@ -23,13 +23,13 @@ export async function createContext(opts: CreateExpressContextOptions): Promise<
       const JWT_SECRET = process.env.JWT_SECRET || "default-secret-change-in-production";
       
       try {
-        const decoded = verify(token, JWT_SECRET) as { userId: number };
+        const decoded = verify(token, JWT_SECRET) as { id: number; openId: string; email: string; role: string };
         const db = await getDb();
         if (db) {
           // Use Drizzle ORM query
           const { users } = await import("../../drizzle/schema");
           const { eq } = await import("drizzle-orm");
-          const result = await db.select().from(users).where(eq(users.id, decoded.userId)).limit(1);
+          const result = await db.select().from(users).where(eq(users.id, decoded.id)).limit(1);
           if (result.length > 0) {
             user = result[0];
             console.log("[tRPC Context] JWT auth successful for user:", user.email);
