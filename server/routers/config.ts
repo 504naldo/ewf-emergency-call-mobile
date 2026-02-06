@@ -1,0 +1,102 @@
+import { z } from "zod";
+import { publicProcedure, router } from "../_core/trpc";
+import { getSystemConfig, setSystemConfig } from "../db";
+
+export const configRouter = router({
+  // Get business hours configuration
+  getBusinessHours: publicProcedure.query(async () => {
+    return await getSystemConfig("business_hours");
+  }),
+
+  // Update business hours configuration
+  updateBusinessHours: publicProcedure
+    .input(
+      z.object({
+        days: z.array(z.number().min(0).max(6)),
+        startHour: z.number().min(0).max(23),
+        startMinute: z.number().min(0).max(59),
+        endHour: z.number().min(0).max(23),
+        endMinute: z.number().min(0).max(59),
+        timezone: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user?.id) {
+        throw new Error("User not authenticated");
+      }
+
+      // TODO: Check if user has admin role
+
+      await setSystemConfig("business_hours", input);
+
+      return { success: true };
+    }),
+
+  // Get ring duration
+  getRingDuration: publicProcedure.query(async () => {
+    return await getSystemConfig("ring_duration");
+  }),
+
+  // Update ring duration
+  updateRingDuration: publicProcedure
+    .input(z.object({ seconds: z.number().min(10).max(60) }))
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user?.id) {
+        throw new Error("User not authenticated");
+      }
+
+      // TODO: Check if user has admin role
+
+      await setSystemConfig("ring_duration", input);
+
+      return { success: true };
+    }),
+
+  // Get business hours ladder
+  getBusinessHoursLadder: publicProcedure.query(async () => {
+    return await getSystemConfig("business_hours_ladder");
+  }),
+
+  // Update business hours ladder
+  updateBusinessHoursLadder: publicProcedure
+    .input(
+      z.object({
+        steps: z.array(z.string()),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user?.id) {
+        throw new Error("User not authenticated");
+      }
+
+      // TODO: Check if user has admin role
+
+      await setSystemConfig("business_hours_ladder", input);
+
+      return { success: true };
+    }),
+
+  // Get after hours ladder
+  getAfterHoursLadder: publicProcedure.query(async () => {
+    return await getSystemConfig("after_hours_ladder");
+  }),
+
+  // Update after hours ladder
+  updateAfterHoursLadder: publicProcedure
+    .input(
+      z.object({
+        steps: z.array(z.string()),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user?.id) {
+        throw new Error("User not authenticated");
+      }
+
+      // TODO: Check if user has admin role
+
+      await setSystemConfig("after_hours_ladder", input);
+
+      return { success: true };
+    }),
+});

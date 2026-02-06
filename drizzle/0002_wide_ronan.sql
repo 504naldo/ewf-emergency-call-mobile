@@ -1,0 +1,1 @@
+ALTER TABLE `rotation_state` MODIFY COLUMN `lastUsedUserIds` json NOT NULL;
