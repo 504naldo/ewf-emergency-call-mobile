@@ -225,3 +225,14 @@
 - [x] Build Android APK with preview profile
 - [x] Download APK file
 - [x] Provide APK to user for distribution
+
+## Standalone Android Build Fixes
+- [x] Audit all API calls for localhost/HTTP references
+- [x] Update tRPC client to use EXPO_PUBLIC_API_URL (already using getApiBaseUrl)
+- [x] Update OAuth configuration to use EXPO_PUBLIC_API_URL (already configured)
+- [x] Update auth-helpers.ts to use getApiBaseUrl instead of localhost
+- [x] Verify all environment variables are properly injected (EXPO_PUBLIC_API_URL in eas.json)
+- [x] Check Android networking permissions (added INTERNET and ACCESS_NETWORK_STATE)
+- [x] Update eas.json preview profile with production HTTPS URL (already configured correctly)
+- [x] Rebuild Android APK with fixed configuration
+- [x] Download fixed APK (Build ID: eabffd46-7bc1-4d2d-be79-80257cef6d28)

@@ -1,7 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000";
+import { getApiBaseUrl } from "@/constants/oauth";
 
 export async function getAuthToken(): Promise<string | null> {
   if (Platform.OS === "web") {
@@ -37,7 +36,7 @@ export async function fetchCurrentUser() {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+    const response = await fetch(`${getApiBaseUrl()}/api/auth/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
