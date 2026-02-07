@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, TouchableOpacity, ActivityIndicator } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, ActivityIndicator, Platform, Linking, Alert } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
@@ -65,6 +65,53 @@ export default function IncidentDetailScreen() {
       outcomeNotes: "",
       followUpRequired: false,
     });
+  };
+
+  const handleDirections = () => {
+    // Get address from site or manual incident event
+    let address = site?.address;
+
+    // If no site address, check if this is a manual incident with address in events
+    if (!address) {
+      const manualEvent = events.find((e) => e.type === "manual_incident_created");
+      if (manualEvent?.payloadJson?.site) {
+        address = manualEvent.payloadJson.site;
+      }
+    }
+
+    if (!address) {
+      Alert.alert("No Address", "No address available for this incident");
+      return;
+    }
+
+    // Encode address for URL
+    const encodedAddress = encodeURIComponent(address);
+
+    // Platform-specific maps URLs
+    const mapsUrl =
+      Platform.OS === "ios"
+        ? `maps://maps.apple.com/?daddr=${encodedAddress}`
+        : `google.navigation:q=${encodedAddress}`;
+
+    // Fallback URLs if native apps not installed
+    const fallbackUrl =
+      Platform.OS === "ios"
+        ? `https://maps.apple.com/?daddr=${encodedAddress}`
+        : `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
+
+    // Try to open native app, fall back to web
+    Linking.canOpenURL(mapsUrl)
+      .then((supported) => {
+        if (supported) {
+          return Linking.openURL(mapsUrl);
+        } else {
+          return Linking.openURL(fallbackUrl);
+        }
+      })
+      .catch((err) => {
+        console.error("Error opening maps:", err);
+        Alert.alert("Error", "Could not open maps application");
+      });
   };
 
   // Show report form if toggled
@@ -147,7 +194,20 @@ export default function IncidentDetailScreen() {
 
           {/* Incident Details */}
           <View className="bg-surface rounded-2xl p-6 border border-border gap-4">
-            <Text className="text-lg font-bold text-foreground">Details</Text>
+            <View className="flex-row items-center justify-between">
+              <Text className="text-lg font-bold text-foreground">Details</Text>
+              {(site?.address || events.find((e) => e.type === "manual_incident_created")?.payloadJson?.site) && (
+                <TouchableOpacity
+                  className="flex-row items-center gap-2 px-3 py-2 rounded-lg active:opacity-70"
+                  style={{ backgroundColor: colors.primary }}
+                  onPress={handleDirections}
+                >
+                  <Text className="text-sm font-semibold" style={{ color: colors.background }}>
+                    📍 Directions
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
             {incident.callerId && (
               <View>

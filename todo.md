@@ -412,3 +412,12 @@
 - [ ] Test without assigned tech (UI testing required)
 - [x] Verify source='manual' stored correctly
 - [x] Verify created_by_user_id stored correctly
+
+## Directions Button on Incident Detail
+- [x] Read incident detail screen to understand current layout
+- [x] Determine incident address source (site address or manual incident site field)
+- [x] Add "Directions" button to incident detail screen
+- [x] Implement platform-specific maps URL (Google Maps for Android, Apple Maps for iOS)
+- [x] Use Linking.openURL to open native maps app
+- [x] Handle cases where address is not available
+- [ ] Test on both platforms (requires device testing)
