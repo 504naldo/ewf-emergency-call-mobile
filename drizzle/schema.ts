@@ -178,6 +178,36 @@ export const notifications = mysqlTable("notifications", {
 }));
 
 // ============================================================================
+// Incident Reports
+// ============================================================================
+
+export const reports = mysqlTable("reports", {
+  id: int("id").autoincrement().primaryKey(),
+  incidentId: int("incidentId").notNull(),
+  techUserId: int("techUserId").notNull(),
+  jsonData: json("jsonData").$type<{
+    site?: string;
+    address?: string;
+    issueType?: string;
+    description?: string;
+    actionsTaken?: string;
+    partsUsed?: string;
+    photos?: string[]; // S3 URLs
+    status?: "resolved" | "temporary" | "follow_up";
+    followUpNotes?: string;
+    techSignature?: string; // Base64 or S3 URL
+    customerSignature?: string; // Base64 or S3 URL
+  }>().notNull(),
+  status: mysqlEnum("status", ["draft", "submitted"]).default("draft").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  incidentIdIdx: index("incident_id_idx").on(table.incidentId),
+  techUserIdIdx: index("tech_user_id_idx").on(table.techUserId),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+// ============================================================================
 // System Configuration
 // ============================================================================
 
@@ -218,3 +248,6 @@ export type InsertNotification = typeof notifications.$inferInsert;
 
 export type SystemConfig = typeof systemConfig.$inferSelect;
 export type InsertSystemConfig = typeof systemConfig.$inferInsert;
+
+export type Report = typeof reports.$inferSelect;
+export type InsertReport = typeof reports.$inferInsert;

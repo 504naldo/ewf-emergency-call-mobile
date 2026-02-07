@@ -255,3 +255,31 @@
 - [x] Configure app.config.ts with proper icon paths (removed non-existent backgroundImage and monochromeImage)
 - [x] Rebuild Android APK with new icon (Build ID: b4c0ad80-57bc-4314-be2b-3314290dc74c)
 - [x] Download APK with EWF logo icon (48 MB)
+
+## Incident Report Feature
+### Backend
+- [x] Create reports table in schema (incident_id, tech_user_id, json_data, status, timestamps)
+- [x] Add reports table migration (0004_fluffy_whirlwind.sql)
+- [x] Create tRPC reports.getByIncident endpoint
+- [x] Create tRPC reports.upsertDraft endpoint
+- [x] Create tRPC reports.submit endpoint
+- [x] Implement permission checks (assigned tech or admin/manager)
+- [x] Register reports router in appRouter
+- [ ] Create tRPC reports.downloadPdf endpoint (optional)
+
+### Mobile
+- [x] Add "Report" button to Incident Detail screen
+- [x] Create Report form component with all required fields
+- [x] Add save as draft functionality
+- [x] Add submit functionality
+- [x] Make submitted reports read-only for techs
+- [x] Show status badge for submitted reports
+- [ ] Implement photo upload functionality (deferred - requires S3 integration)
+- [ ] Implement signature capture (optional - requires canvas library)
+
+### Testing
+- [ ] Test draft save and retrieve
+- [ ] Test report submission
+- [ ] Test permission enforcement
+- [ ] Test photo upload
+- [ ] Test PDF generation (if implemented)

@@ -3,10 +3,13 @@ import { useLocalSearchParams, router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
 import { useColors } from "@/hooks/use-colors";
+import { IncidentReportForm } from "@/components/incident-report-form";
+import { useState } from "react";
 
 export default function IncidentDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useColors();
+  const [showReport, setShowReport] = useState(false);
 
   const incidentId = parseInt(id || "0");
 
@@ -60,6 +63,27 @@ export default function IncidentDetailScreen() {
       followUpRequired: false,
     });
   };
+
+  // Show report form if toggled
+  if (showReport) {
+    return (
+      <ScreenContainer edges={["top", "left", "right"]} className="bg-background">
+        <View className="flex-1">
+          {/* Header with back button */}
+          <View className="p-4 border-b border-border">
+            <TouchableOpacity
+              className="flex-row items-center gap-2 active:opacity-70"
+              onPress={() => setShowReport(false)}
+            >
+              <Text className="text-base text-primary">← Back to Incident</Text>
+            </TouchableOpacity>
+            <Text className="text-2xl font-bold text-foreground mt-2">Incident Report</Text>
+          </View>
+          <IncidentReportForm incidentId={incidentId} onSaved={() => refetch()} />
+        </View>
+      </ScreenContainer>
+    );
+  }
 
   return (
     <ScreenContainer edges={["top", "left", "right"]} className="bg-background">
@@ -246,6 +270,16 @@ export default function IncidentDetailScreen() {
                 </View>
               ))}
             </View>
+          )}
+
+          {/* Report Button */}
+          {incident.assignedUserId && (
+            <TouchableOpacity
+              className="bg-surface rounded-2xl p-4 border-2 border-primary active:opacity-70"
+              onPress={() => setShowReport(true)}
+            >
+              <Text className="text-center text-base font-bold text-primary">📋 View/Create Report</Text>
+            </TouchableOpacity>
           )}
 
           {/* Timeline */}
