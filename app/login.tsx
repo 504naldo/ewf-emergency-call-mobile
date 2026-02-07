@@ -21,9 +21,28 @@ export default function LoginScreen() {
       return;
     }
 
+    // Validate API URL
+    const apiUrl = getApiBaseUrl();
+    if (!apiUrl) {
+      Alert.alert(
+        "Configuration Error",
+        "API URL is not configured. Please contact support."
+      );
+      return;
+    }
+
+    // Check for expired sandbox URLs
+    if (apiUrl.includes(".manus.computer") && apiUrl.includes("-")) {
+      Alert.alert(
+        "Expired Build",
+        "This build is using a temporary API URL that has expired. Please download the latest version from your administrator."
+      );
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await fetch(`${getApiBaseUrl()}/api/auth/login`, {
+      const response = await fetch(`${apiUrl}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

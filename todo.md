@@ -421,3 +421,22 @@
 - [x] Use Linking.openURL to open native maps app
 - [x] Handle cases where address is not available
 - [ ] Test on both platforms (requires device testing)
+
+## API URL Durability Fix (CRITICAL)
+### Backend
+- [x] Add /health endpoint returning JSON
+- [ ] Deploy API to Railway with production database (requires user's Railway account)
+- [x] Verify all endpoints return JSON (no HTML errors)
+- [ ] Test health endpoint on production URL (after deployment)
+
+### App
+- [x] Remove hardcoded sandbox URLs from eas.json
+- [x] Add runtime guard for missing/expired API URL
+- [x] Ensure EXPO_PUBLIC_API_URL used everywhere
+
+### Build
+- [x] Update eas.json with placeholder for production API URL
+- [ ] User: Deploy backend to Railway (see DEPLOYMENT.md)
+- [ ] User: Update eas.json with actual Railway URL
+- [ ] Rebuild Android APK with production URL
+- [ ] Build iOS TestFlight version with production URL

@@ -19,7 +19,7 @@
         "simulator": false
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://3000-idnp2v40w08yb7xd2bav5-40469c99.us2.manus.computer"
+        "EXPO_PUBLIC_API_URL": "REPLACE_WITH_YOUR_RAILWAY_URL"
       }
     },
     "production": {
@@ -30,7 +30,7 @@
         "simulator": false
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://your-production-api-url.com"
+        "EXPO_PUBLIC_API_URL": "REPLACE_WITH_YOUR_RAILWAY_URL"
       }
     }
   },
