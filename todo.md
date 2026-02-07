@@ -466,3 +466,9 @@
 - [x] Commit and push fix
 - [ ] User: Trigger Railway redeploy
 - [ ] User: Verify deployment succeeds
+
+## Railway ES Module Error (CRITICAL)
+- [x] Add "type": "module" to package.json
+- [x] Commit and push to GitHub
+- [ ] User: Wait for Railway auto-redeploy
+- [ ] User: Verify deployment succeeds
