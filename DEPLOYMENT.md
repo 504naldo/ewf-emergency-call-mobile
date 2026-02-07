@@ -6,20 +6,32 @@
 - Railway account (https://railway.app)
 - Railway CLI installed: `npm install -g @railway/cli`
 
-### Step 1: Deploy Backend
+### Backend Repository
+
+The backend code is available at:
+**https://github.com/504naldo/ewf-emergency-call-backend**
+
+### Step 1: Deploy Backend from GitHub
+
+**Option A: Deploy via Railway Dashboard (Recommended)**
+
+1. Go to https://railway.app/new
+2. Click "Deploy from GitHub repo"
+3. Select `504naldo/ewf-emergency-call-backend`
+4. Railway will automatically detect the configuration and deploy
+
+**Option B: Deploy via CLI**
 
 ```bash
+# Clone the repository
+git clone https://github.com/504naldo/ewf-emergency-call-backend.git
+cd ewf-emergency-call-backend
+
 # Login to Railway
 railway login
 
-# Initialize project (creates railway.json)
-cd /home/ubuntu/ewf-emergency-call
+# Initialize and deploy
 railway init
-
-# Link to existing project or create new one
-railway link
-
-# Deploy
 railway up
 ```
 

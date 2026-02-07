@@ -440,3 +440,10 @@
 - [ ] User: Update eas.json with actual Railway URL
 - [ ] Rebuild Android APK with production URL
 - [ ] Build iOS TestFlight version with production URL
+
+## GitHub Repository for Backend
+- [x] Verify server uses process.env.PORT
+- [x] Create backend-specific README.md
+- [x] Create GitHub repository
+- [x] Push backend code to repository
+- [x] Update DEPLOYMENT.md with repo link
