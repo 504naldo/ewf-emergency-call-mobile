@@ -447,3 +447,13 @@
 - [x] Create GitHub repository
 - [x] Push backend code to repository
 - [x] Update DEPLOYMENT.md with repo link
+
+## Railway Healthcheck Fix (CRITICAL)
+- [x] Update server to bind to 0.0.0.0 instead of localhost
+- [x] Add lightweight GET /health endpoint returning 200 OK
+- [x] Make database connection optional (already implemented - lazy-loaded)
+- [x] Remove hardcoded port references
+- [x] Commit and push to GitHub
+- [ ] User: Trigger Railway redeploy to apply fixes
+- [ ] User: Verify Railway deployment reaches Healthy status
+- [x] Document MySQL setup steps for Railway (see RAILWAY-SETUP.md)
