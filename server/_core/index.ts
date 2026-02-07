@@ -68,6 +68,15 @@ async function startServer() {
   // Register Twilio webhook routes
   app.use("/api", twilioWebhookRoutes);
 
+  // Lightweight health endpoints for Railway healthcheck
+  app.get("/", (_req, res) => {
+    res.status(200).send("OK");
+  });
+
+  app.get("/health", (_req, res) => {
+    res.status(200).json({ status: "ok", timestamp: Date.now() });
+  });
+
   app.get("/api/health", (_req, res) => {
     res.json({ ok: true, timestamp: Date.now() });
   });
@@ -97,8 +106,13 @@ async function startServer() {
     }
   }
 
-  server.listen(port, () => {
-    console.log(`[api] server listening on port ${port}`);
+  // Bind to 0.0.0.0 for Railway (required for container networking)
+  const host = isProduction ? "0.0.0.0" : "localhost";
+  
+  server.listen(port, host, () => {
+    console.log(`[api] server listening on ${host}:${port}`);
+    console.log(`[api] environment: ${process.env.NODE_ENV || "development"}`);
+    console.log(`[api] health check available at http://${host}:${port}/health`);
   });
 }
 
