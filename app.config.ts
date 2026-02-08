@@ -44,7 +44,7 @@ const config: ExpoConfig = {
   version: "1.0.0",
   extra: {
     eas: {
-      projectId: "14c4ca4d-4c37-498b-95ef-91d2f339a1a0"
+      projectId: "17df13f1-45dd-46a3-bb92-cad4ec845f78"
     }
   },
   orientation: "portrait",
