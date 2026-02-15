@@ -1,6 +1,5 @@
 import { createTRPCReact } from "@trpc/react-query";
 import { httpBatchLink } from "@trpc/client";
-import superjson from "superjson";
 import type { AppRouter } from "@/server/routers";
 import { getApiBaseUrl } from "@/constants/oauth";
 import * as SecureStore from "expo-secure-store";
@@ -26,7 +25,7 @@ export function createTRPCClient() {
       httpBatchLink({
         url: `${getApiBaseUrl()}/api/trpc`,
         // tRPC v11: transformer MUST be inside httpBatchLink, not at root
-        transformer: superjson,
+      
         async headers() {
           // Get token from storage
           let token: string | null = null;
