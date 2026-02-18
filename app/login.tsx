@@ -23,6 +23,7 @@ export default function LoginScreen() {
 
     // Validate API URL
     const apiUrl = getApiBaseUrl();
+    console.log("[DEBUG] API URL from getApiBaseUrl():", apiUrl, "Type:", typeof apiUrl);
     if (!apiUrl) {
       Alert.alert(
         "Configuration Error",
