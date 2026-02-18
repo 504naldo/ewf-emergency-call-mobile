@@ -137,8 +137,8 @@ export default function LoginScreen() {
         {/* Demo Credentials */}
         <View className="bg-surface border border-border rounded-xl p-4 w-full max-w-sm">
           <Text className="text-sm font-semibold text-foreground mb-2">Demo Credentials:</Text>
-          <Text className="text-sm text-muted">Email: john.smith@ewf.com</Text>
-          <Text className="text-sm text-muted">Password: password123</Text>
+          <Text className="text-sm text-muted">Email: ranaldo@ewandf.ca</Text>
+          <Text className="text-sm text-muted">Password: ewf2024!</Text>
         </View>
       </View>
     </ScreenContainer>
