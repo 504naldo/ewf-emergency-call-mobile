@@ -43,7 +43,21 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/api/auth/login`, {
+      const loginUrl = `${apiUrl}/api/auth/login`;
+      console.log("[DEBUG] Full login URL:", loginUrl);
+      console.log("[DEBUG] URL length:", loginUrl.length);
+      console.log("[DEBUG] URL starts with http:", loginUrl.startsWith("http"));
+      
+      // Validate URL before fetch
+      try {
+        new URL(loginUrl);
+        console.log("[DEBUG] URL validation passed");
+      } catch (urlError) {
+        console.error("[DEBUG] URL validation failed:", urlError);
+        throw new Error(`Invalid URL constructed: ${loginUrl}`);
+      }
+      
+      const response = await fetch(loginUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -64,7 +78,16 @@ export default function LoginScreen() {
       // No need to navigate - AuthGuard will automatically render the app
     } catch (error: any) {
       console.error("[Login] Error:", error);
-      Alert.alert("Login Failed", error.message || "Invalid email or password");
+      console.error("[Login] Error name:", error.name);
+      console.error("[Login] Error message:", error.message);
+      console.error("[Login] Error stack:", error.stack);
+      
+      let errorMessage = error.message || "Invalid email or password";
+      if (error.message && error.message.includes("Invalid URL")) {
+        errorMessage = `Invalid URL Error: ${error.message}. API URL: ${getApiBaseUrl()}`;
+      }
+      
+      Alert.alert("Login Failed", errorMessage);
     } finally {
       setLoading(false);
     }
