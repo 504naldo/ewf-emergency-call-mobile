@@ -47,15 +47,7 @@ export default function LoginScreen() {
       console.log("[DEBUG] Full login URL:", loginUrl);
       console.log("[DEBUG] URL length:", loginUrl.length);
       console.log("[DEBUG] URL starts with http:", loginUrl.startsWith("http"));
-      
-      // Validate URL before fetch
-      try {
-        new URL(loginUrl);
-        console.log("[DEBUG] URL validation passed");
-      } catch (urlError) {
-        console.error("[DEBUG] URL validation failed:", urlError);
-        throw new Error(`Invalid URL constructed: ${loginUrl}`);
-      }
+      console.log("[DEBUG] Attempting fetch...");
       
       const response = await fetch(loginUrl, {
         method: "POST",
