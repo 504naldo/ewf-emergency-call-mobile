@@ -43,23 +43,42 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      // Hardcode the full URL to bypass any URL construction issues
+      // Use XMLHttpRequest instead of fetch to bypass RN fetch bug
       const LOGIN_URL = "https://ewf-emergency-call-backend-production.up.railway.app/api/auth/login";
-      console.log("[DEBUG] Using hardcoded URL:", LOGIN_URL);
+      console.log("[DEBUG] Using XMLHttpRequest with URL:", LOGIN_URL);
       
-      const response = await fetch(LOGIN_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+      const data = await new Promise<any>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.onload = () => {
+          console.log("[DEBUG] XHR status:", xhr.status);
+          try {
+            const responseData = JSON.parse(xhr.responseText);
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve(responseData);
+            } else {
+              reject(new Error(responseData.error || "Login failed"));
+            }
+          } catch (e) {
+            reject(new Error("Invalid response from server"));
+          }
+        };
+        
+        xhr.onerror = () => {
+          console.error("[DEBUG] XHR error");
+          reject(new Error("Network error - cannot reach server"));
+        };
+        
+        xhr.ontimeout = () => {
+          console.error("[DEBUG] XHR timeout");
+          reject(new Error("Request timeout - server not responding"));
+        };
+        
+        xhr.open("POST", LOGIN_URL);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.timeout = 10000;
+        xhr.send(JSON.stringify({ email, password }));
       });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || "Login failed");
-      }
 
       // Store token and user via AuthContext
       await login(data.token, data.user);
@@ -68,12 +87,9 @@ export default function LoginScreen() {
       // No need to navigate - AuthGuard will automatically render the app
     } catch (error: any) {
       console.error("[Login] Error:", error);
-      console.error("[Login] Error name:", error.name);
       console.error("[Login] Error message:", error.message);
-      console.error("[Login] Error stack:", error.stack);
       
       let errorMessage = error.message || "Invalid email or password";
-      
       Alert.alert("Login Failed", errorMessage);
     } finally {
       setLoading(false);
