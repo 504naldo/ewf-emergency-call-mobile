@@ -23,7 +23,7 @@ export default function LoginScreen() {
 
     // Validate API URL
     const apiUrl = getApiBaseUrl();
-    console.log("[DEBUG] API URL from getApiBaseUrl():", apiUrl, "Type:", typeof apiUrl);
+    console.log("[Login] Using API URL:", apiUrl);
     if (!apiUrl) {
       Alert.alert(
         "Configuration Error",
@@ -43,54 +43,52 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      // Use XMLHttpRequest instead of fetch to bypass RN fetch bug
-      const LOGIN_URL = "https://ewf-emergency-call-backend-production.up.railway.app/api/auth/login";
-      console.log("[DEBUG] Using XMLHttpRequest with URL:", LOGIN_URL);
-      
-      const data = await new Promise<any>((resolve, reject) => {
+      // Use XMLHttpRequest instead of fetch() to bypass React Native's URL validation bug
+      // React Native's fetch() has a known issue on Android where it throws "Invalid URL"
+      // even with valid hardcoded HTTPS URLs. XMLHttpRequest works reliably.
+      const response = await new Promise<{ status: number; data: any }>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
+        const url = `${apiUrl}/api/auth/login`;
+        
+        console.log("[Login] XMLHttpRequest to:", url);
+        
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
         
         xhr.onload = () => {
-          console.log("[DEBUG] XHR status:", xhr.status);
           try {
-            const responseData = JSON.parse(xhr.responseText);
-            if (xhr.status >= 200 && xhr.status < 300) {
-              resolve(responseData);
-            } else {
-              reject(new Error(responseData.error || "Login failed"));
-            }
+            const data = JSON.parse(xhr.responseText);
+            resolve({ status: xhr.status, data });
           } catch (e) {
             reject(new Error("Invalid response from server"));
           }
         };
         
         xhr.onerror = () => {
-          console.error("[DEBUG] XHR error");
-          reject(new Error("Network error - cannot reach server"));
+          reject(new Error("Network request failed"));
         };
         
         xhr.ontimeout = () => {
-          console.error("[DEBUG] XHR timeout");
-          reject(new Error("Request timeout - server not responding"));
+          reject(new Error("Request timeout"));
         };
         
-        xhr.open("POST", LOGIN_URL);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.timeout = 10000;
+        xhr.timeout = 30000; // 30 second timeout
+        
         xhr.send(JSON.stringify({ email, password }));
       });
 
+      if (response.status !== 200) {
+        throw new Error(response.data.error || "Login failed");
+      }
+
       // Store token and user via AuthContext
-      await login(data.token, data.user);
+      await login(response.data.token, response.data.user);
       
       console.log("[Login] Login successful, auth state updated");
       // No need to navigate - AuthGuard will automatically render the app
     } catch (error: any) {
       console.error("[Login] Error:", error);
-      console.error("[Login] Error message:", error.message);
-      
-      let errorMessage = error.message || "Invalid email or password";
-      Alert.alert("Login Failed", errorMessage);
+      Alert.alert("Login Failed", error.message || "Invalid email or password");
     } finally {
       setLoading(false);
     }
@@ -155,7 +153,7 @@ export default function LoginScreen() {
           >
             {loading ? (
               <ActivityIndicator color={colors.background} />
-            ) : (
+             ) : (
               <Text className="text-background text-center font-semibold text-lg">Sign In</Text>
             )}
           </TouchableOpacity>
