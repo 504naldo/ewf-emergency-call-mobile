@@ -6,6 +6,7 @@ import { useState } from "react";
 import { router } from "expo-router";
 import { useAuth } from "@/lib/auth-context";
 import { getApiBaseUrl } from "@/constants/oauth";
+import axios from "axios";
 
 export default function LoginScreen() {
   const colors = useColors();
@@ -45,23 +46,19 @@ export default function LoginScreen() {
     try {
       const loginUrl = `${apiUrl}/api/auth/login`;
       console.log("[DEBUG] Full login URL:", loginUrl);
-      console.log("[DEBUG] URL length:", loginUrl.length);
-      console.log("[DEBUG] URL starts with http:", loginUrl.startsWith("http"));
-      console.log("[DEBUG] Attempting fetch...");
+      console.log("[DEBUG] Attempting axios post...");
       
-      const response = await fetch(loginUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await axios.post(loginUrl, 
+        { email, password },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          timeout: 10000,
+        }
+      );
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Login failed");
-      }
+      const data = response.data;
 
       // Store token and user via AuthContext
       await login(data.token, data.user);
@@ -75,8 +72,14 @@ export default function LoginScreen() {
       console.error("[Login] Error stack:", error.stack);
       
       let errorMessage = error.message || "Invalid email or password";
-      if (error.message && error.message.includes("Invalid URL")) {
-        errorMessage = `Invalid URL Error: ${error.message}. API URL: ${getApiBaseUrl()}`;
+      
+      // Axios error handling
+      if (error.response) {
+        // Server responded with error status
+        errorMessage = error.response.data?.error || "Login failed";
+      } else if (error.request) {
+        // Request made but no response
+        errorMessage = `Cannot reach server at ${getApiBaseUrl()}. Please check your internet connection.`;
       }
       
       Alert.alert("Login Failed", errorMessage);
