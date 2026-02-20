@@ -6,7 +6,6 @@ import { useState } from "react";
 import { router } from "expo-router";
 import { useAuth } from "@/lib/auth-context";
 import { getApiBaseUrl } from "@/constants/oauth";
-import axios from "axios";
 
 export default function LoginScreen() {
   const colors = useColors();
@@ -44,21 +43,23 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const loginUrl = `${apiUrl}/api/auth/login`;
-      console.log("[DEBUG] Full login URL:", loginUrl);
-      console.log("[DEBUG] Attempting axios post...");
+      // Hardcode the full URL to bypass any URL construction issues
+      const LOGIN_URL = "https://ewf-emergency-call-backend-production.up.railway.app/api/auth/login";
+      console.log("[DEBUG] Using hardcoded URL:", LOGIN_URL);
       
-      const response = await axios.post(loginUrl, 
-        { email, password },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          timeout: 10000,
-        }
-      );
+      const response = await fetch(LOGIN_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      const data = response.data;
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed");
+      }
 
       // Store token and user via AuthContext
       await login(data.token, data.user);
@@ -72,15 +73,6 @@ export default function LoginScreen() {
       console.error("[Login] Error stack:", error.stack);
       
       let errorMessage = error.message || "Invalid email or password";
-      
-      // Axios error handling
-      if (error.response) {
-        // Server responded with error status
-        errorMessage = error.response.data?.error || "Login failed";
-      } else if (error.request) {
-        // Request made but no response
-        errorMessage = `Cannot reach server at ${getApiBaseUrl()}. Please check your internet connection.`;
-      }
       
       Alert.alert("Login Failed", errorMessage);
     } finally {
